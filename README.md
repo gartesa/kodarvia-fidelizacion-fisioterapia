@@ -57,7 +57,7 @@ listo para que Kodarvia lo conecte a servicios reales más adelante:
 
 | Función | Qué hace esta demo | Qué falta para producción |
 |---|---|---|
-| Login / registro de paciente | Busca el correo entre los pacientes guardados en `localStorage`; cualquier clave es válida | Autenticación real (Supabase Auth u otro proveedor), verificación de correo |
+| Login / registro de paciente | Busca el correo entre los pacientes guardados en `localStorage`. Los pacientes de ejemplo precargados aceptan cualquier clave (acceso rápido de demo); un paciente que se registra desde la app define su propia clave y debe usarla tal cual para volver a entrar. La clave se guarda sin cifrar en `localStorage`, solo para simular el flujo | Autenticación real (Supabase Auth u otro proveedor), hash de contraseñas, verificación de correo |
 | Acceso del panel admin | Usuario/clave fijos (`admin` / `kodarvia2026`), visibles en la propia pantalla de acceso | Autenticación de staff con roles y permisos |
 | Código QR del paciente | Se genera y dibuja en el navegador (`qrcode.react`) a partir de un ID único guardado en `localStorage` | Nada adicional: ya es un QR real y escaneable, solo que no hay cámara para leerlo |
 | Lectura de QR en el panel admin | El staff escribe o pega el código (o usa los accesos rápidos de la demo) en vez de apuntar una cámara | Lector óptico nativo con la cámara del dispositivo |

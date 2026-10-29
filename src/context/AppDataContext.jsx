@@ -65,12 +65,22 @@ export function AppDataProvider({ children }) {
   }, [])
 
   const registerPatient = useCallback(
-    ({ name, email, phone, sport, consentAccepted }) => {
+    ({ name, email, phone, sport, password, consentAccepted }) => {
+      const normalizedEmail = email.trim().toLowerCase()
+      const alreadyExists = patients.some((p) => p.email.toLowerCase() === normalizedEmail)
+      if (alreadyExists) {
+        return { success: false, message: 'Ya existe una cuenta registrada con ese correo.' }
+      }
+
       const id = generateId('p')
       const newPatient = {
         id,
         name: name.trim(),
         email: email.trim(),
+        // Demo sin backend: la clave se guarda tal cual (sin hash) solo para
+        // simular el login. Los pacientes precargados no tienen clave propia
+        // y aceptan cualquier valor no vacío (ver loginAsPatient más abajo).
+        password,
         phone: phone?.trim() || '',
         sport: sport?.trim() || 'Paciente de fisioterapia',
         joinedAt: new Date().toISOString(),
@@ -98,9 +108,30 @@ export function AppDataProvider({ children }) {
       persistHistory([welcomeEntry, ...history])
 
       loginAsPatient(id)
-      return id
+      return { success: true, patientId: id }
     },
     [patients, history, persistPatients, persistHistory, loginAsPatient]
+  )
+
+  const loginPatient = useCallback(
+    (email, password) => {
+      const found = patients.find((p) => p.email.toLowerCase() === email.trim().toLowerCase())
+      if (!found) {
+        return { success: false, message: 'No encontramos una cuenta con ese correo. Prueba con una demo o regístrate.' }
+      }
+      if (!password) {
+        return { success: false, message: 'Ingresa tu clave para continuar.' }
+      }
+      // Los pacientes precargados de la demo no tienen clave propia (any
+      // password sirve para probarlos rápido); los registrados desde la app
+      // sí deben coincidir con la clave que definieron.
+      if (found.password && found.password !== password) {
+        return { success: false, message: 'Clave incorrecta.' }
+      }
+      loginAsPatient(found.id)
+      return { success: true, patient: found }
+    },
+    [patients, loginAsPatient]
   )
 
   const findPatientByCode = useCallback(
@@ -261,6 +292,7 @@ export function AppDataProvider({ children }) {
       notify,
       setActiveRole,
       loginAsPatient,
+      loginPatient,
       logoutPatient,
       registerPatient,
       findPatientByCode,
@@ -286,6 +318,7 @@ export function AppDataProvider({ children }) {
       notify,
       setActiveRole,
       loginAsPatient,
+      loginPatient,
       logoutPatient,
       registerPatient,
       findPatientByCode,

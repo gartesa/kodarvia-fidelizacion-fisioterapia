@@ -6,7 +6,7 @@ const CONSENT_TEXT =
   'He leído y acepto la Política de Privacidad y el Tratamiento de Datos Personales del centro para fines de fidelización y contacto. [Texto legal de marcador: Kodarvia redactará la versión definitiva de estos términos antes de producción.]'
 
 export default function PatientAuthScreen() {
-  const { patients, loginAsPatient, registerPatient, notify } = useAppData()
+  const { patients, loginPatient, registerPatient, notify } = useAppData()
   const [mode, setMode] = useState('login')
 
   // --- login ---
@@ -15,24 +15,19 @@ export default function PatientAuthScreen() {
   const [loginError, setLoginError] = useState('')
 
   // --- registro ---
-  const [form, setForm] = useState({ name: '', email: '', phone: '', sport: '' })
+  const [form, setForm] = useState({ name: '', email: '', phone: '', sport: '', password: '' })
   const [consent, setConsent] = useState(false)
   const [registerError, setRegisterError] = useState('')
 
   function handleLogin(e) {
     e.preventDefault()
     setLoginError('')
-    const found = patients.find((p) => p.email.toLowerCase() === email.trim().toLowerCase())
-    if (!found) {
-      setLoginError('No encontramos una cuenta con ese correo. Prueba con una demo o regístrate.')
+    const result = loginPatient(email, password)
+    if (!result.success) {
+      setLoginError(result.message)
       return
     }
-    if (!password) {
-      setLoginError('Ingresa cualquier clave para continuar (acceso simulado).')
-      return
-    }
-    loginAsPatient(found.id)
-    notify(`¡Hola de nuevo, ${found.name.split(' ')[0]}!`)
+    notify(`¡Hola de nuevo, ${result.patient.name.split(' ')[0]}!`)
   }
 
   function handleRegister(e) {
@@ -42,11 +37,18 @@ export default function PatientAuthScreen() {
       setRegisterError('Nombre y correo son obligatorios.')
       return
     }
+    if (form.password.length < 4) {
+      setRegisterError('La clave debe tener al menos 4 caracteres.')
+      return
+    }
     if (!consent) {
       setRegisterError('Debes aceptar el consentimiento de privacidad para continuar.')
       return
     }
-    registerPatient({ ...form, consentAccepted: consent })
+    const result = registerPatient({ ...form, consentAccepted: consent })
+    if (!result.success) {
+      setRegisterError(result.message)
+    }
   }
 
   function quickFill(p) {
@@ -157,6 +159,21 @@ export default function PatientAuthScreen() {
                   className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-primary outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
                   required
                 />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-500">Clave</label>
+                <input
+                  type="password"
+                  value={form.password}
+                  onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+                  placeholder="Mínimo 4 caracteres"
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-primary outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
+                  required
+                  minLength={4}
+                />
+                <p className="mt-1 text-[11px] text-slate-400">
+                  Úsala junto a tu correo para volver a entrar más adelante.
+                </p>
               </div>
               <div>
                 <label className="mb-1 block text-xs font-medium text-slate-500">Teléfono (opcional)</label>

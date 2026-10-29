@@ -19,10 +19,12 @@ pantalla de la app:
 
 ### Ingresar
 
-En "Ingresar", escribe el correo de un paciente de ejemplo y cualquier
-clave (el acceso es simulado, no se valida contra ningún servidor). Para
-agilizar la demo, los chips bajo el formulario autocompletan el correo de
-cada paciente de ejemplo:
+En "Ingresar", escribe el correo y la clave de la cuenta. Los **pacientes de
+ejemplo precargados** no tienen clave propia: aceptan cualquier valor no
+vacío, para agilizar la demo. Un **paciente creado desde "Registrarme"**
+debe ingresar exactamente la clave que definió al registrarse. Para
+agilizar la demo con los pacientes de ejemplo, los chips bajo el formulario
+autocompletan el correo de cada uno:
 
 | Paciente | Correo |
 |---|---|
@@ -34,10 +36,12 @@ cada paciente de ejemplo:
 
 ### Registrarme
 
-La pestaña "Registrarme" crea un paciente nuevo (nombre, correo, teléfono y
-disciplina opcionales) y exige aceptar el checkbox de consentimiento de
-privacidad antes de continuar. El paciente nuevo arranca con un bono de
-bienvenida de 50 puntos.
+La pestaña "Registrarme" crea un paciente nuevo (nombre, correo, clave,
+teléfono y disciplina opcionales) y exige aceptar el checkbox de
+consentimiento de privacidad antes de continuar. No se puede registrar dos
+veces el mismo correo. El paciente nuevo arranca con un bono de bienvenida
+de 50 puntos y queda con sesión iniciada de inmediato; esa clave es la que
+deberá usar la próxima vez que entre desde "Ingresar".
 
 ### Pestañas inferiores
 
