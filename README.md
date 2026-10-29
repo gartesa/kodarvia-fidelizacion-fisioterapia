@@ -116,19 +116,31 @@ src/
 
 ## Despliegue (URL de previsualización)
 
-Este repositorio no incluye un despliegue propio. Para generar la URL de
-previsualización que pide el encargo, el proyecto está listo para publicarse
-tal cual (sin variables de entorno ni backend) en cualquier hosting
-estático, por ejemplo:
+El repositorio publica automáticamente en **GitHub Pages** mediante
+`.github/workflows/deploy-pages.yml`: cada push a `master` dispara un build
+(`GH_PAGES=true npm run build`, que ajusta el `base` de Vite y el manifest
+PWA al subpath del repo) y lo despliega.
+
+**URL de previsualización:**
+https://gartesa.github.io/kodarvia-fidelizacion-fisioterapia/
+
+Puede tardar 1–2 minutos en estar disponible tras el primer push; el
+progreso se ve en la pestaña **Actions** del repositorio.
+
+Si en algún momento se prefiere desplegar en otro hosting estático (Vercel,
+Netlify, etc.), el proyecto funciona igual sin variables de entorno ni
+backend:
 
 ```bash
-npm run build        # genera la carpeta dist/
+npm run build        # genera la carpeta dist/ con base "/"
 npx vercel deploy dist --prod     # o: npx netlify deploy --prod --dir dist
 ```
 
-(También funciona con GitHub Pages u otro hosting estático equivalente.)
-
 ## Licencia / confidencialidad
 
-Material confidencial del encargo Kodarvia. No redistribuir como trabajo
+El código de este repositorio es la entrega del encargo y es público solo
+para habilitar la URL de previsualización en GitHub Pages. Los documentos
+del briefing (ficha del encargo y espacio de trabajo en PDF) son material
+confidencial de Kodarvia y **no están incluidos** en este repositorio
+(excluidos vía `.gitignore`). No redistribuir este proyecto como trabajo
 propio sin autorización.
