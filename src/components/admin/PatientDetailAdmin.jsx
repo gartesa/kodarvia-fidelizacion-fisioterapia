@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import PhoneInput from 'react-phone-number-input'
 import flags from 'react-phone-number-input/flags'
 import 'react-phone-number-input/style.css'
@@ -14,6 +14,11 @@ const POINT_PRESETS = [
   { points: 100, label: '+100 (sesión extendida)' },
 ]
 
+// Bloquea reenvíos mientras el usuario mantiene el dedo/click sobre el botón:
+// sin esto, clics repetidos en rápida sucesión (doble clic, mashing) generaban
+// una entrada de historial duplicada por cada clic.
+const SUBMIT_COOLDOWN_MS = 600
+
 export default function PatientDetailAdmin({ patient, onBack }) {
   const { accreditPoints, redeemReward, updatePatient, deletePatient, rewards, history } =
     useAppData()
@@ -21,10 +26,14 @@ export default function PatientDetailAdmin({ patient, onBack }) {
   const [points, setPoints] = useState(80)
   const [description, setDescription] = useState('Sesión de kinesiología deportiva')
   const [lastUpdateMs, setLastUpdateMs] = useState(null)
+  const [isAccrediting, setIsAccrediting] = useState(false)
+  const accreditLockRef = useRef(false)
 
   const [rewardId, setRewardId] = useState(rewards[0]?.id ?? '')
   const [redeemError, setRedeemError] = useState('')
   const [redeemOk, setRedeemOk] = useState('')
+  const [isRedeeming, setIsRedeeming] = useState(false)
+  const redeemLockRef = useRef(false)
 
   const [editing, setEditing] = useState(false)
   const [editForm, setEditForm] = useState({
@@ -45,24 +54,46 @@ export default function PatientDetailAdmin({ patient, onBack }) {
 
   function handleAccredit(e) {
     e.preventDefault()
+    if (accreditLockRef.current) return
+    accreditLockRef.current = true
+    setIsAccrediting(true)
+
     const start = performance.now()
     const result = accreditPoints(patient.id, Number(points), description)
     if (result.success) {
       setLastUpdateMs(Math.round(performance.now() - start))
     }
+
+    window.setTimeout(() => {
+      accreditLockRef.current = false
+      setIsAccrediting(false)
+    }, SUBMIT_COOLDOWN_MS)
   }
 
   function handleRedeem(e) {
     e.preventDefault()
+    if (redeemLockRef.current) return
+    redeemLockRef.current = true
+    setIsRedeeming(true)
+
     setRedeemError('')
     setRedeemOk('')
-    if (!selectedReward) return
+    if (!selectedReward) {
+      redeemLockRef.current = false
+      setIsRedeeming(false)
+      return
+    }
     const result = redeemReward(patient.id, selectedReward.id, { by: 'admin' })
     if (!result.success) {
       setRedeemError(result.message)
     } else {
       setRedeemOk(`Canje registrado: ${selectedReward.name}.`)
     }
+
+    window.setTimeout(() => {
+      redeemLockRef.current = false
+      setIsRedeeming(false)
+    }, SUBMIT_COOLDOWN_MS)
   }
 
   function startEditing() {
@@ -269,9 +300,14 @@ export default function PatientDetailAdmin({ patient, onBack }) {
 
         <button
           type="submit"
-          className="mt-3 w-full rounded-lg bg-accent py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-600 active:bg-accent-700"
+          disabled={isAccrediting}
+          className={`mt-3 w-full rounded-lg py-2.5 text-sm font-semibold text-white transition-colors ${
+            isAccrediting
+              ? 'cursor-not-allowed bg-accent/60'
+              : 'bg-accent hover:bg-accent-600 active:bg-accent-700'
+          }`}
         >
-          Acreditar puntos
+          {isAccrediting ? 'Acreditando…' : 'Acreditar puntos'}
         </button>
 
         {lastUpdateMs !== null && (
@@ -301,14 +337,14 @@ export default function PatientDetailAdmin({ patient, onBack }) {
 
         <button
           type="submit"
-          disabled={!canRedeem}
+          disabled={!canRedeem || isRedeeming}
           className={`mt-3 w-full rounded-lg py-2.5 text-sm font-semibold transition-colors ${
-            canRedeem
+            canRedeem && !isRedeeming
               ? 'bg-primary text-white hover:bg-primary-700'
               : 'cursor-not-allowed bg-slate-100 text-slate-400'
           }`}
         >
-          {canRedeem ? 'Registrar canje' : 'Puntos insuficientes para este canje'}
+          {isRedeeming ? 'Registrando…' : canRedeem ? 'Registrar canje' : 'Puntos insuficientes para este canje'}
         </button>
 
         {redeemError && <p className="mt-2 text-xs font-medium text-rose-600">{redeemError}</p>}
