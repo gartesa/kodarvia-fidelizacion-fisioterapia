@@ -1,4 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+/* Tipografías auto-hospedadas (subset latin, cubre los acentos del español):
+   antes se cargaban desde fonts.googleapis.com, ahora quedan embebidas en el
+   build para que la app no dependa de ningún servicio externo. */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('./assets/fonts/plus-jakarta-sans-latin-variable.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('./assets/fonts/inter-latin-variable.woff2') format('woff2');
+}
 
 @tailwind base;
 @tailwind components;

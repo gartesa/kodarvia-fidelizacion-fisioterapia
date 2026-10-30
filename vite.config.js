@@ -53,26 +53,12 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // Las tipografías (Inter, Plus Jakarta Sans) quedan auto-hospedadas como
+        // .woff2 dentro del propio build, así que ya no hace falta runtimeCaching
+        // para fonts.googleapis.com/fonts.gstatic.com: globPatterns las precachea
+        // junto al resto del app shell.
         globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
         navigateFallback: `${base}index.html`,
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-stylesheets',
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
-            },
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-webfonts',
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
-            },
-          },
-        ],
       },
       devOptions: {
         enabled: false,

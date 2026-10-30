@@ -18,6 +18,10 @@ vistas y simular el escaneo de puntos).
   sin red: el QR se dibuja en el navegador a partir de un ID local)
 - **`vite-plugin-pwa`** para el manifest, los íconos y el *service worker*
   (precache del *app shell* para funcionar sin conexión)
+- **Tipografías auto-hospedadas** (Plus Jakarta Sans, Inter como variable
+  fonts `.woff2`, subset latin): se empaquetan con el build en vez de
+  cargarse desde Google Fonts, así la app no depende de ningún servicio
+  externo ni siquiera para el primer render.
 - **Sin backend.** Toda la persistencia vive en `localStorage` del
   navegador.
 
