@@ -48,6 +48,40 @@ body {
   }
 }
 
+.kodarvia-phone-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #fff;
+}
+
+.kodarvia-phone-input:focus-within {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgb(56 189 248 / 0.3);
+}
+
+.kodarvia-phone-input .PhoneInputCountry {
+  margin-right: 0;
+}
+
+.kodarvia-phone-input .PhoneInputCountrySelectArrow {
+  color: #64748b;
+}
+
+.kodarvia-phone-input-field {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  font-size: 0.875rem;
+  color: #0f2942;
+  background: transparent;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

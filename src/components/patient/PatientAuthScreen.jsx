@@ -1,9 +1,14 @@
 import { useState } from 'react'
+import PhoneInput from 'react-phone-number-input'
+import flags from 'react-phone-number-input/flags'
+import 'react-phone-number-input/style.css'
 import { useAppData } from '../../context/AppDataContext'
 import BrandMark from '../shared/BrandMark'
 
 const CONSENT_TEXT =
   'He leído y acepto la Política de Privacidad y el Tratamiento de Datos Personales del centro para fines de fidelización y contacto. [Texto legal de marcador: Kodarvia redactará la versión definitiva de estos términos antes de producción.]'
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/
 
 export default function PatientAuthScreen() {
   const { patients, loginPatient, registerPatient, notify } = useAppData()
@@ -33,8 +38,13 @@ export default function PatientAuthScreen() {
   function handleRegister(e) {
     e.preventDefault()
     setRegisterError('')
-    if (!form.name.trim() || !form.email.trim()) {
-      setRegisterError('Nombre y correo son obligatorios.')
+    const nameWords = form.name.trim().split(/\s+/).filter(Boolean)
+    if (nameWords.length < 2) {
+      setRegisterError('Ingresa tu nombre completo (nombre y apellido).')
+      return
+    }
+    if (!EMAIL_REGEX.test(form.email.trim())) {
+      setRegisterError('Ingresa un correo electrónico válido (ej. usuario@dominio.cl).')
       return
     }
     if (form.password.length < 4) {
@@ -177,12 +187,15 @@ export default function PatientAuthScreen() {
               </div>
               <div>
                 <label className="mb-1 block text-xs font-medium text-slate-500">Teléfono (opcional)</label>
-                <input
-                  type="tel"
+                <PhoneInput
+                  flags={flags}
+                  defaultCountry="CL"
+                  international
                   value={form.phone}
-                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                  placeholder="+56 9 ..."
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-primary outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
+                  onChange={(value) => setForm((f) => ({ ...f, phone: value || '' }))}
+                  placeholder="+56 9 1234 5678"
+                  className="kodarvia-phone-input"
+                  numberInputProps={{ className: 'kodarvia-phone-input-field' }}
                 />
               </div>
               <div>
