@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useAppData } from '../../context/AppDataContext'
 
 export default function RewardsCatalog({ patient }) {
@@ -10,26 +10,6 @@ export default function RewardsCatalog({ patient }) {
     [rewards]
   )
   const [activeCategory, setActiveCategory] = useState('Todos')
-
-  const categoryScrollRef = useRef(null)
-  const [showCategoryFade, setShowCategoryFade] = useState(false)
-
-  useEffect(() => {
-    const el = categoryScrollRef.current
-    if (!el) return undefined
-
-    function updateFade() {
-      setShowCategoryFade(el.scrollWidth - el.scrollLeft - el.clientWidth > 4)
-    }
-
-    updateFade()
-    el.addEventListener('scroll', updateFade, { passive: true })
-    window.addEventListener('resize', updateFade)
-    return () => {
-      el.removeEventListener('scroll', updateFade)
-      window.removeEventListener('resize', updateFade)
-    }
-  }, [categories])
 
   const visibleRewards = useMemo(
     () =>
@@ -56,26 +36,21 @@ export default function RewardsCatalog({ patient }) {
         </p>
       </div>
 
-      <div className="relative -mx-4">
-        <div ref={categoryScrollRef} className="flex gap-2 overflow-x-auto px-4 no-scrollbar">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setActiveCategory(cat)}
-              className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-                activeCategory === cat
-                  ? 'bg-primary text-white'
-                  : 'bg-white text-slate-500 ring-1 ring-slate-200'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-        {showCategoryFade && (
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-[#F8FAFC] to-transparent" />
-        )}
+      <div className="flex flex-wrap gap-2">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            type="button"
+            onClick={() => setActiveCategory(cat)}
+            className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+              activeCategory === cat
+                ? 'bg-primary text-white'
+                : 'bg-white text-slate-500 ring-1 ring-slate-200'
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
