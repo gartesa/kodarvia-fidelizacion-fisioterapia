@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import PhoneInput from 'react-phone-number-input'
 import flags from 'react-phone-number-input/flags'
 import 'react-phone-number-input/style.css'
@@ -51,6 +51,18 @@ export default function PatientDetailAdmin({ patient, onBack }) {
   const patientHistory = history.filter((h) => h.patientId === patient.id).slice(0, 8)
   const selectedReward = rewards.find((r) => r.id === rewardId)
   const canRedeem = selectedReward ? patient.points >= selectedReward.pointsCost : false
+
+  // Si el premio seleccionado se edita/elimina desde la pestaña "Premios"
+  // mientras esta ficha está abierta, vuelve a apuntar a uno válido.
+  useEffect(() => {
+    if (rewards.length === 0) {
+      if (rewardId !== '') setRewardId('')
+      return
+    }
+    if (!rewards.some((r) => r.id === rewardId)) {
+      setRewardId(rewards[0].id)
+    }
+  }, [rewards, rewardId])
 
   function handleAccredit(e) {
     e.preventDefault()
@@ -319,33 +331,42 @@ export default function PatientDetailAdmin({ patient, onBack }) {
 
       <form onSubmit={handleRedeem} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
         <h4 className="text-sm font-bold text-primary">Registrar canje de premio</h4>
-        <select
-          value={rewardId}
-          onChange={(e) => {
-            setRewardId(e.target.value)
-            setRedeemError('')
-            setRedeemOk('')
-          }}
-          className="mt-3 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-primary outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
-        >
-          {rewards.map((r) => (
-            <option key={r.id} value={r.id}>
-              {r.name} — {r.pointsCost} pts
-            </option>
-          ))}
-        </select>
 
-        <button
-          type="submit"
-          disabled={!canRedeem || isRedeeming}
-          className={`mt-3 w-full rounded-lg py-2.5 text-sm font-semibold transition-colors ${
-            canRedeem && !isRedeeming
-              ? 'bg-primary text-white hover:bg-primary-700'
-              : 'cursor-not-allowed bg-slate-100 text-slate-400'
-          }`}
-        >
-          {isRedeeming ? 'Registrando…' : canRedeem ? 'Registrar canje' : 'Puntos insuficientes para este canje'}
-        </button>
+        {rewards.length === 0 ? (
+          <p className="mt-3 rounded-lg bg-slate-50 px-3 py-4 text-center text-xs text-slate-400">
+            No hay premios en el catálogo. Agrega uno desde la pestaña &ldquo;Premios&rdquo;.
+          </p>
+        ) : (
+          <>
+            <select
+              value={rewardId}
+              onChange={(e) => {
+                setRewardId(e.target.value)
+                setRedeemError('')
+                setRedeemOk('')
+              }}
+              className="mt-3 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-primary outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
+            >
+              {rewards.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.name} — {r.pointsCost} pts
+                </option>
+              ))}
+            </select>
+
+            <button
+              type="submit"
+              disabled={!canRedeem || isRedeeming}
+              className={`mt-3 w-full rounded-lg py-2.5 text-sm font-semibold transition-colors ${
+                canRedeem && !isRedeeming
+                  ? 'bg-primary text-white hover:bg-primary-700'
+                  : 'cursor-not-allowed bg-slate-100 text-slate-400'
+              }`}
+            >
+              {isRedeeming ? 'Registrando…' : canRedeem ? 'Registrar canje' : 'Puntos insuficientes para este canje'}
+            </button>
+          </>
+        )}
 
         {redeemError && <p className="mt-2 text-xs font-medium text-rose-600">{redeemError}</p>}
         {redeemOk && <p className="mt-2 text-xs font-medium text-accent-700">{redeemOk}</p>}

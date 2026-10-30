@@ -128,6 +128,35 @@ Consejo, Catálogo), escribe título y contenido, y pulsa **"Publicar en el
 feed"**. La publicación aparece de inmediato en el feed de todos los
 pacientes, sin recargar la página.
 
+### Editar y eliminar publicaciones
+
+En la misma pestaña **Novedades**, cada publicación de la lista
+"Publicaciones existentes" tiene sus propios botones **"Editar"** y
+**"Eliminar"**. Editar reutiliza el mismo formulario (categoría, título,
+contenido) precargado con los datos actuales; la fecha original de
+publicación no cambia. Eliminar pide confirmación explícita antes de
+borrar. Ambos cambios se reflejan de inmediato en el feed de novedades del
+paciente.
+
+### Gestionar el catálogo de premios
+
+Pestaña **Premios** (panel admin): permite crear, editar y eliminar los
+premios canjeables, hoy sin necesidad de tocar código.
+
+- **Crear un premio:** elige una categoría (Evaluación, Equipamiento,
+  Terapia manual, Recuperación, Prevención), escribe nombre, puntos
+  requeridos y descripción, y pulsa **"Agregar al catálogo"**.
+- **Editar o eliminar:** cada premio de la lista tiene sus propios botones
+  **"Editar"** (mismo formulario, precargado) y **"Eliminar"** (con
+  confirmación explícita).
+
+Los cambios se reflejan de inmediato tanto en el catálogo que ve el
+paciente como en el selector de **"Registrar canje de premio"** del panel
+admin. Si el premio seleccionado en ese selector se edita o elimina
+mientras la ficha de un paciente sigue abierta, la selección cae de vuelta
+al primer premio disponible (o muestra un aviso si el catálogo queda
+vacío).
+
 ### Exportar actividad
 
 Pestaña **Actividad**: lista completa de acreditaciones y canjes, con

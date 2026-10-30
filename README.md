@@ -4,7 +4,8 @@ PWA de fidelización por puntos para un centro de fisioterapia deportiva en
 Antofagasta, Chile. Encargo para **Kodarvia**. Vista de paciente (tarjeta
 digital con QR, catálogo de premios, feed de novedades) y panel de
 administración (acreditar puntos, registrar canjes, editar y eliminar
-pacientes, publicar noticias, exportar actividad a CSV).
+pacientes, gestionar el catálogo de premios, publicar/editar/eliminar
+noticias, exportar actividad a CSV).
 
 Ver también [`MANUAL.md`](./MANUAL.md) para el manual de uso (alternar entre
 vistas y simular el escaneo de puntos).
@@ -112,7 +113,8 @@ src/
     shared/    marca, selector de vista, insignias, notificaciones
     patient/   login/registro, tarjeta con QR, catálogo, novedades
     admin/     acceso admin, búsqueda/escaneo, acreditación, canjes, edición
-               y borrado de pacientes, CSV
+               y borrado de pacientes, gestión del catálogo de premios
+               (crear/editar/borrar), novedades (crear/editar/borrar), CSV
 ```
 
 ## Despliegue (URL de previsualización)

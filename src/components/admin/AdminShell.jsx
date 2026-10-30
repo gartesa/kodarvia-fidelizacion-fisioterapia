@@ -3,6 +3,7 @@ import { useAppData } from '../../context/AppDataContext'
 import { ADMIN_TABS } from '../../data/constants'
 import PatientSearch from './PatientSearch'
 import PatientDetailAdmin from './PatientDetailAdmin'
+import RewardsManager from './RewardsManager'
 import NewsComposer from './NewsComposer'
 import ActivityLog from './ActivityLog'
 
@@ -38,6 +39,7 @@ export default function AdminShell() {
           ) : (
             <PatientSearch onSelect={setSelectedPatientId} />
           ))}
+        {tab === 'premios' && <RewardsManager />}
         {tab === 'novedades' && <NewsComposer />}
         {tab === 'actividad' && <ActivityLog />}
       </main>

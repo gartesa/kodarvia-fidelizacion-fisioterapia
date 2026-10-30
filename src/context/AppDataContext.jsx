@@ -44,6 +44,11 @@ export function AppDataProvider({ children }) {
     writeJson(STORAGE_KEYS.news, next)
   }, [])
 
+  const persistRewards = useCallback((next) => {
+    setRewards(next)
+    writeJson(STORAGE_KEYS.rewards, next)
+  }, [])
+
   const setActiveRole = useCallback((role) => {
     setActiveRoleState(role)
     writeJson(STORAGE_KEYS.activeRole, role)
@@ -251,6 +256,69 @@ export function AppDataProvider({ children }) {
     [patients, rewards, history, persistPatients, persistHistory, notify]
   )
 
+  const addReward = useCallback(
+    ({ name, category, pointsCost, description }) => {
+      const cost = Number(pointsCost)
+      if (!name?.trim() || !category?.trim() || !description?.trim()) {
+        return { success: false, message: 'Completa nombre, categoría y descripción.' }
+      }
+      if (!Number.isFinite(cost) || cost <= 0) {
+        return { success: false, message: 'Los puntos requeridos deben ser un número mayor a 0.' }
+      }
+
+      const reward = {
+        id: generateId('r'),
+        name: name.trim(),
+        category: category.trim(),
+        pointsCost: cost,
+        description: description.trim(),
+      }
+      persistRewards([...rewards, reward])
+      notify('Premio creado. Ya está disponible en el catálogo.')
+      return { success: true, reward }
+    },
+    [rewards, persistRewards, notify]
+  )
+
+  const updateReward = useCallback(
+    (rewardId, { name, category, pointsCost, description }) => {
+      const reward = rewards.find((r) => r.id === rewardId)
+      if (!reward) {
+        return { success: false, message: 'Premio no encontrado.' }
+      }
+      const cost = Number(pointsCost)
+      if (!name?.trim() || !category?.trim() || !description?.trim()) {
+        return { success: false, message: 'Completa nombre, categoría y descripción.' }
+      }
+      if (!Number.isFinite(cost) || cost <= 0) {
+        return { success: false, message: 'Los puntos requeridos deben ser un número mayor a 0.' }
+      }
+
+      const nextRewards = rewards.map((r) =>
+        r.id === rewardId
+          ? { ...r, name: name.trim(), category: category.trim(), pointsCost: cost, description: description.trim() }
+          : r
+      )
+      persistRewards(nextRewards)
+      notify('Premio actualizado.')
+      return { success: true }
+    },
+    [rewards, persistRewards, notify]
+  )
+
+  const deleteReward = useCallback(
+    (rewardId) => {
+      const reward = rewards.find((r) => r.id === rewardId)
+      if (!reward) {
+        return { success: false, message: 'Premio no encontrado.' }
+      }
+      persistRewards(rewards.filter((r) => r.id !== rewardId))
+      notify(`Premio "${reward.name}" eliminado.`)
+      return { success: true }
+    },
+    [rewards, persistRewards, notify]
+  )
+
   const addNews = useCallback(
     ({ title, body, badge }) => {
       const entry = {
@@ -278,6 +346,41 @@ export function AppDataProvider({ children }) {
       persistNews(nextNews)
     },
     [news, persistNews]
+  )
+
+  const updateNews = useCallback(
+    (newsId, { title, body, badge }) => {
+      const item = news.find((n) => n.id === newsId)
+      if (!item) {
+        return { success: false, message: 'Publicación no encontrada.' }
+      }
+      if (!title?.trim() || !body?.trim()) {
+        return { success: false, message: 'Título y contenido son obligatorios.' }
+      }
+
+      const nextNews = news.map((n) =>
+        n.id === newsId
+          ? { ...n, title: title.trim(), body: body.trim(), badge: badge?.trim() || 'Novedad' }
+          : n
+      )
+      persistNews(nextNews)
+      notify('Publicación actualizada.')
+      return { success: true }
+    },
+    [news, persistNews, notify]
+  )
+
+  const deleteNews = useCallback(
+    (newsId) => {
+      const item = news.find((n) => n.id === newsId)
+      if (!item) {
+        return { success: false, message: 'Publicación no encontrada.' }
+      }
+      persistNews(news.filter((n) => n.id !== newsId))
+      notify('Publicación eliminada.')
+      return { success: true }
+    },
+    [news, persistNews, notify]
   )
 
   const adminLogin = useCallback(
@@ -349,7 +452,12 @@ export function AppDataProvider({ children }) {
       findPatientByCode,
       accreditPoints,
       redeemReward,
+      addReward,
+      updateReward,
+      deleteReward,
       addNews,
+      updateNews,
+      deleteNews,
       markNewsRead,
       adminLogin,
       adminLogout,
@@ -377,7 +485,12 @@ export function AppDataProvider({ children }) {
       findPatientByCode,
       accreditPoints,
       redeemReward,
+      addReward,
+      updateReward,
+      deleteReward,
       addNews,
+      updateNews,
+      deleteNews,
       markNewsRead,
       adminLogin,
       adminLogout,

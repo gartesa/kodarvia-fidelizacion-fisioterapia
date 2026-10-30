@@ -28,8 +28,17 @@ export const PATIENT_TABS = [
 
 export const ADMIN_TABS = [
   { key: 'pacientes', label: 'Pacientes' },
+  { key: 'premios', label: 'Premios' },
   { key: 'novedades', label: 'Novedades' },
   { key: 'actividad', label: 'Actividad' },
+]
+
+export const REWARD_CATEGORIES = [
+  'Evaluación',
+  'Equipamiento',
+  'Terapia manual',
+  'Recuperación',
+  'Prevención',
 ]
 
 export const ADMIN_DEMO_CREDENTIALS = {
