@@ -104,6 +104,23 @@ En la misma ficha, elige un premio del listado y pulsa **"Registrar
 canje"**. El botón queda deshabilitado si el paciente no alcanza los puntos
 necesarios para ese premio.
 
+### Editar los datos de un paciente
+
+En el bloque **"Datos del paciente"** de la ficha, pulsa **"Editar
+datos"** para modificar nombre, correo, teléfono y disciplina. El teléfono
+usa el mismo selector internacional (bandera + prefijo de país) que el
+registro de paciente. Pulsa **"Guardar cambios"** para confirmar o
+**"Cancelar"** para descartar. No es posible editar el historial de puntos
+ni de canjes desde aquí — eso se gestiona siempre con **"Acreditar
+puntos"** y **"Registrar canje"**.
+
+### Eliminar un paciente
+
+Al final de la ficha, en el bloque **"Zona de riesgo"**, pulsa **"Eliminar
+paciente"**. La app pide confirmación explícita (**"Sí, eliminar"** /
+**"Cancelar"**) antes de borrar: es una acción permanente que quita al
+paciente de `localStorage` y de la lista de búsqueda.
+
 ### Publicar novedades y promociones
 
 Pestaña **Novedades**: elige una categoría (Novedad, Promoción, Taller,

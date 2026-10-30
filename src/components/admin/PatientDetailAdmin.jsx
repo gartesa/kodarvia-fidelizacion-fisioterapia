@@ -1,7 +1,11 @@
 import { useState } from 'react'
+import PhoneInput from 'react-phone-number-input'
+import flags from 'react-phone-number-input/flags'
+import 'react-phone-number-input/style.css'
 import { useAppData } from '../../context/AppDataContext'
 import { getLevelProgress } from '../../utils/levels'
 import { formatDateTime } from '../../utils/date'
+import { EMAIL_REGEX } from '../../utils/validation'
 import LevelBadge from '../shared/LevelBadge'
 
 const POINT_PRESETS = [
@@ -11,7 +15,8 @@ const POINT_PRESETS = [
 ]
 
 export default function PatientDetailAdmin({ patient, onBack }) {
-  const { accreditPoints, redeemReward, rewards, history } = useAppData()
+  const { accreditPoints, redeemReward, updatePatient, deletePatient, rewards, history } =
+    useAppData()
 
   const [points, setPoints] = useState(80)
   const [description, setDescription] = useState('Sesión de kinesiología deportiva')
@@ -20,6 +25,19 @@ export default function PatientDetailAdmin({ patient, onBack }) {
   const [rewardId, setRewardId] = useState(rewards[0]?.id ?? '')
   const [redeemError, setRedeemError] = useState('')
   const [redeemOk, setRedeemOk] = useState('')
+
+  const [editing, setEditing] = useState(false)
+  const [editForm, setEditForm] = useState({
+    name: patient.name,
+    email: patient.email,
+    phone: patient.phone,
+    sport: patient.sport,
+  })
+  const [editError, setEditError] = useState('')
+  const [editOk, setEditOk] = useState('')
+
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
 
   const patientHistory = history.filter((h) => h.patientId === patient.id).slice(0, 8)
   const selectedReward = rewards.find((r) => r.id === rewardId)
@@ -45,6 +63,45 @@ export default function PatientDetailAdmin({ patient, onBack }) {
     } else {
       setRedeemOk(`Canje registrado: ${selectedReward.name}.`)
     }
+  }
+
+  function startEditing() {
+    setEditForm({ name: patient.name, email: patient.email, phone: patient.phone, sport: patient.sport })
+    setEditError('')
+    setEditOk('')
+    setEditing(true)
+  }
+
+  function handleEditSave(e) {
+    e.preventDefault()
+    setEditError('')
+    setEditOk('')
+    const nameWords = editForm.name.trim().split(/\s+/).filter(Boolean)
+    if (nameWords.length < 2) {
+      setEditError('Ingresa el nombre completo (nombre y apellido).')
+      return
+    }
+    if (!EMAIL_REGEX.test(editForm.email.trim())) {
+      setEditError('Ingresa un correo electrónico válido (ej. usuario@dominio.cl).')
+      return
+    }
+    const result = updatePatient(patient.id, editForm)
+    if (!result.success) {
+      setEditError(result.message)
+      return
+    }
+    setEditOk('Datos actualizados correctamente.')
+    setEditing(false)
+  }
+
+  function handleDeleteConfirmed() {
+    setDeleteError('')
+    const result = deletePatient(patient.id)
+    if (!result.success) {
+      setDeleteError(result.message)
+      return
+    }
+    onBack()
   }
 
   const { current, next, percent } = getLevelProgress(patient.points)
@@ -77,6 +134,95 @@ export default function PatientDetailAdmin({ patient, onBack }) {
         <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/15">
           <div className="h-full rounded-full bg-accent transition-all duration-500" style={{ width: `${percent}%` }} />
         </div>
+      </div>
+
+      <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+        <div className="flex items-center justify-between">
+          <h4 className="text-sm font-bold text-primary">Datos del paciente</h4>
+          {!editing && (
+            <button
+              type="button"
+              onClick={startEditing}
+              className="text-xs font-semibold text-accent-700 hover:text-accent"
+            >
+              Editar datos
+            </button>
+          )}
+        </div>
+
+        {editing ? (
+          <form onSubmit={handleEditSave} className="mt-3 space-y-3">
+            <div>
+              <label className="mb-1 block text-[11px] font-medium text-slate-500">Nombre completo</label>
+              <input
+                type="text"
+                value={editForm.name}
+                onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-primary outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
+                required
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-[11px] font-medium text-slate-500">Correo electrónico</label>
+              <input
+                type="email"
+                value={editForm.email}
+                onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))}
+                className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-primary outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
+                required
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-[11px] font-medium text-slate-500">Teléfono (opcional)</label>
+              <PhoneInput
+                flags={flags}
+                defaultCountry="CL"
+                international
+                value={editForm.phone}
+                onChange={(value) => setEditForm((f) => ({ ...f, phone: value || '' }))}
+                placeholder="+56 9 1234 5678"
+                className="kodarvia-phone-input"
+                numberInputProps={{ className: 'kodarvia-phone-input-field' }}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-[11px] font-medium text-slate-500">Disciplina (opcional)</label>
+              <input
+                type="text"
+                value={editForm.sport}
+                onChange={(e) => setEditForm((f) => ({ ...f, sport: e.target.value }))}
+                className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-primary outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
+              />
+            </div>
+
+            {editError && <p className="text-xs font-medium text-rose-600">{editError}</p>}
+
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                className="flex-1 rounded-lg bg-accent py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-600 active:bg-accent-700"
+              >
+                Guardar cambios
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditing(false)
+                  setEditError('')
+                }}
+                className="rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-500 ring-1 ring-slate-200 hover:text-primary"
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="mt-3 space-y-1 text-xs text-slate-500">
+            <p>Teléfono: {patient.phone || 'Sin registrar'}</p>
+            <p>Disciplina: {patient.sport}</p>
+            {editOk && <p className="font-medium text-accent-700">{editOk}</p>}
+          </div>
+        )}
       </div>
 
       <form onSubmit={handleAccredit} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
@@ -197,6 +343,50 @@ export default function PatientDetailAdmin({ patient, onBack }) {
             </div>
           ))}
         </div>
+      </div>
+
+      <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-rose-100">
+        <h4 className="text-sm font-bold text-rose-700">Zona de riesgo</h4>
+        {!confirmingDelete ? (
+          <>
+            <p className="mt-1 text-xs text-slate-500">
+              Elimina a este paciente de forma permanente, incluyendo su perfil guardado localmente.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setDeleteError('')
+                setConfirmingDelete(true)
+              }}
+              className="mt-3 w-full rounded-lg border border-rose-200 py-2.5 text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-50"
+            >
+              Eliminar paciente
+            </button>
+          </>
+        ) : (
+          <>
+            <p className="mt-1 text-xs font-medium text-rose-700">
+              ¿Seguro que quieres eliminar a {patient.name}? Esta acción no se puede deshacer.
+            </p>
+            <div className="mt-3 flex gap-2">
+              <button
+                type="button"
+                onClick={handleDeleteConfirmed}
+                className="flex-1 rounded-lg bg-rose-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-rose-700"
+              >
+                Sí, eliminar
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmingDelete(false)}
+                className="rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-500 ring-1 ring-slate-200 hover:text-primary"
+              >
+                Cancelar
+              </button>
+            </div>
+            {deleteError && <p className="mt-2 text-xs font-medium text-rose-600">{deleteError}</p>}
+          </>
+        )}
       </div>
     </div>
   )

@@ -134,6 +134,55 @@ export function AppDataProvider({ children }) {
     [patients, loginAsPatient]
   )
 
+  const updatePatient = useCallback(
+    (patientId, { name, email, phone, sport }) => {
+      const patient = patients.find((p) => p.id === patientId)
+      if (!patient) {
+        return { success: false, message: 'Paciente no encontrado.' }
+      }
+      const normalizedEmail = email.trim().toLowerCase()
+      const emailTaken = patients.some(
+        (p) => p.id !== patientId && p.email.toLowerCase() === normalizedEmail
+      )
+      if (emailTaken) {
+        return { success: false, message: 'Ya existe otro paciente registrado con ese correo.' }
+      }
+
+      const nextPatients = patients.map((p) =>
+        p.id === patientId
+          ? {
+              ...p,
+              name: name.trim(),
+              email: email.trim(),
+              phone: phone?.trim() || '',
+              sport: sport?.trim() || 'Paciente de fisioterapia',
+            }
+          : p
+      )
+      persistPatients(nextPatients)
+      notify('Datos del paciente actualizados.')
+      return { success: true }
+    },
+    [patients, persistPatients, notify]
+  )
+
+  const deletePatient = useCallback(
+    (patientId) => {
+      const patient = patients.find((p) => p.id === patientId)
+      if (!patient) {
+        return { success: false, message: 'Paciente no encontrado.' }
+      }
+      const nextPatients = patients.filter((p) => p.id !== patientId)
+      persistPatients(nextPatients)
+      if (currentPatientId === patientId) {
+        logoutPatient()
+      }
+      notify(`Paciente ${patient.name} eliminado.`)
+      return { success: true }
+    },
+    [patients, persistPatients, currentPatientId, logoutPatient, notify]
+  )
+
   const findPatientByCode = useCallback(
     (code) => patients.find((p) => p.qrId.toLowerCase() === code.trim().toLowerCase()) ?? null,
     [patients]
@@ -295,6 +344,8 @@ export function AppDataProvider({ children }) {
       loginPatient,
       logoutPatient,
       registerPatient,
+      updatePatient,
+      deletePatient,
       findPatientByCode,
       accreditPoints,
       redeemReward,
@@ -321,6 +372,8 @@ export function AppDataProvider({ children }) {
       loginPatient,
       logoutPatient,
       registerPatient,
+      updatePatient,
+      deletePatient,
       findPatientByCode,
       accreditPoints,
       redeemReward,

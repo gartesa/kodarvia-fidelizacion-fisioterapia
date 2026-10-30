@@ -4,11 +4,10 @@ import flags from 'react-phone-number-input/flags'
 import 'react-phone-number-input/style.css'
 import { useAppData } from '../../context/AppDataContext'
 import BrandMark from '../shared/BrandMark'
+import { EMAIL_REGEX } from '../../utils/validation'
 
 const CONSENT_TEXT =
   'He leído y acepto la Política de Privacidad y el Tratamiento de Datos Personales del centro para fines de fidelización y contacto. [Texto legal de marcador: Kodarvia redactará la versión definitiva de estos términos antes de producción.]'
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/
 
 export default function PatientAuthScreen() {
   const { patients, loginPatient, registerPatient, notify } = useAppData()
