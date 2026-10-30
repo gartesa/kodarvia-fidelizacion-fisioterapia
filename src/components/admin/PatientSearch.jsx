@@ -44,18 +44,18 @@ export default function PatientSearch({ onSelect }) {
           Pega o escribe el código impreso bajo el QR de la tarjeta del paciente. Kodarvia
           reemplazará esto por el lector de cámara real en producción.
         </p>
-        <form onSubmit={handleScan} className="mt-3 flex gap-2">
+        <form onSubmit={handleScan} className="mt-3 flex flex-col gap-2 sm:flex-row">
           <input
             type="text"
             value={scanCode}
             onChange={(e) => setScanCode(e.target.value)}
             placeholder="Ej: KDV-PAT-0001"
-            className="flex-1 rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-mono uppercase text-primary outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
+            className="w-full min-w-0 flex-1 rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-mono uppercase text-primary outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
           />
           <button
             type="submit"
             disabled={scanning}
-            className="shrink-0 rounded-lg bg-primary px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-primary-700 disabled:opacity-60"
+            className="w-full shrink-0 rounded-lg bg-primary px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-primary-700 disabled:opacity-60 sm:w-auto"
           >
             {scanning ? 'Leyendo…' : 'Simular escaneo'}
           </button>
